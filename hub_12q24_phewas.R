@@ -13,7 +13,7 @@
 #
 #   *** COUNTING UNIT ***
 #   Both panels use the ALL-SNP unit: every study-wide significant SNP whose
-#   nearest gene is that gene. CUX2 24, HECTD4 25, RPH3A 22, ALDH2 24. 
+#   nearest gene is that gene. CUX2, ACAD10, ALDH2, NAA25, HECTD4 
 #
 # Top panel : bar chart, N_traits per gene, read from Table S5 (all-SNP unit).
 # Bottom panel: one row per trait study-wide significant in >=1 of the 4
@@ -42,12 +42,12 @@ SWS          <- -log10(P_STUDYWIDE)
 
 GENES <- c("CUX2", "ACAD10", "ALDH2", "NAA25", "HECTD4")   # column order, matches the original figure
 
-IN_SIG      <- "data/all_sig.txt.gz"                 # dot panel
-IN_ST5      <- "data/ST5_studywide_allSNP.csv"       # bar panel (all-SNP unit)
+IN_SIG      <- "../data/all_sig.txt.gz"                 # dot panel
+IN_ST5      <- "../data/ST5_studywide_allSNP.csv"       # bar panel (all-SNP unit)
 
-OUT_CSV <- "out/hub_12q24_phewas.csv"
-OUT_DOC <- "out/hub_12q24_phewas_readme.tsv"
-OUT_PNG <- "out/hub_12q24_phewas.png"
+OUT_CSV <- "../out/hub_12q24_phewas.csv"
+OUT_DOC <- "../out/hub_12q24_phewas_readme.tsv"
+OUT_PNG <- "../out/hub_12q24_phewas.png"
 
 neglog10p <- function(beta, se) {
   z <- abs(beta) / se
@@ -187,7 +187,7 @@ CATEGORY_COLOR <- c(
   Metabolism      = "#1a7a3c", Liver          = "#a6d96a", Kidney         = "#d4a017",
   Hematology      = "#7b5aa6", Coagulation    = "#9ecae1", Inflammatory   = "#e6339a",
   Hormone         = "#e6772e", Anthropometric = "#3b5b8c", Electrolyte    = "#b6e2e0",
-  Protein         = "#1f6fb2", `Vital sign`   = "#d46fb3", `Cardiac marker` = "#8c564b",
+  Protein         = "#1f6fb2", `Vital sign`   = "#c0392b", `Cardiac marker` = "#8c564b",
   Echocardiography = "#555555", Ophthalmology = "#b07aa1", `Tumor marker` = "#17a2a2"
 )
 stopifnot(all(CATEGORY_ORDER %in% names(CATEGORY_COLOR)))
