@@ -14,12 +14,12 @@
 # (max -log10 P) association. Y-axis trait labels and dots are both colored by
 # clinical category, with a category legend.
 #
-# Input : data/all_sig.txt.gz   ALL trait-SNP associations at P<5e-8
+# Input : ../data/all_sig.txt.gz   ALL trait-SNP associations at P<5e-8
 #                               (tab-delimited, gzipped)
 #                               -- filtered here to P < 6.17e-10.
-# Output: out/GCKR_phewas.csv          per-trait table, study-wide traits only
-#         out/GCKR_phewas_readme.tsv
-#         out/GCKR_phewas.png          the plot
+# Output: ../out/GCKR_phewas.csv          per-trait table, study-wide traits only
+#         ../out/GCKR_phewas_readme.tsv
+#         ../out/GCKR_phewas.png          the plot
 #
 # Run   : Rscript scripts/gckr_phewas.R
 #
@@ -33,10 +33,10 @@ N_EFF_TRAITS <- 81
 P_STUDYWIDE  <- P_GENOMEWIDE / N_EFF_TRAITS
 SWS          <- -log10(P_STUDYWIDE)
 
-IN_SIG  <- "data/all_sig.txt.gz"
-OUT_CSV <- "out/GCKR_phewas.csv"
-OUT_DOC <- "out/GCKR_phewas_readme.tsv"
-OUT_PNG <- "out/GCKR_phewas.png"
+IN_SIG  <- "../data/all_sig.txt.gz"
+OUT_CSV <- "../out/GCKR_phewas.csv"
+OUT_DOC <- "../out/GCKR_phewas_readme.tsv"
+OUT_PNG <- "../out/GCKR_phewas.png"
 
 LOCUS_GENE <- "GCKR"
 
@@ -107,7 +107,8 @@ stopifnot(nrow(per_trait) == length(unique(gckr$Trait)),
           all(per_trait$neglog10P > SWS),
           sum(per_trait$Category == "Metabolism") > 0)
 
-# Category display order: matches the number of traits within catogories and -log10p. Traits are then ranked by -log10P descending within category.
+# Category display order: matches the number of traits within catogories and -log10p. 
+# Traits are then ranked by -log10P descending within category.
 # Covers all 15 atlas categories so any category the association list brings in
 # (e.g. Vital sign) has a defined slot and color.
 CATEGORY_ORDER <- c("Metabolism", "Hematology", "Kidney", "Liver", "Anthropometric", "Coagulation",
@@ -222,4 +223,3 @@ legend("bottomright", legend = cats_present, pch = 19, col = CATEGORY_COLOR[cats
 
 dev.off()
 message("wrote ", OUT_PNG)
-
