@@ -3,18 +3,6 @@
 # hub_12q24_phewas.R -- "PheWAS of GCKR, ABO and the 12q24 hub" at the
 #   study-wide threshold (P < 5e-8/81 = 6.17e-10).
 #
-# REVISION HISTORY
-#     input switched from the full association list data/all_sig.txt.gz, 
-#     FILTERED TO STUDY-WIDE SIGNIFICANT SNPs before anything downstream.
-#     The bar panel now reads the all-SNP Table S5,data/ST5_studywide_allSNP.csv
-#     (built by Table_S5/Script/build_st5_all_sig.R from the same all_sig.txt.gz
-#     at the same threshold). The table is now the single source of truth for the bar
-#     counts and the figure is a consumer of it.
-#
-#   *** COUNTING UNIT ***
-#   Both panels use the ALL-SNP unit: every study-wide significant SNP whose
-#   nearest gene is that gene. CUX2, ACAD10, ALDH2, NAA25, HECTD4 
-#
 # Top panel : bar chart, N_traits per gene, read from Table S5 (all-SNP unit).
 # Bottom panel: one row per trait study-wide significant in >=1 of the 4
 #             genes; one dot per gene, colored by -log10(P) (binned;
@@ -158,29 +146,6 @@ if (!identical(as.integer(gene_n), as.integer(gene_n_here))) {
 }
 message("consistency check passed: Table S5 N_traits == recount from ", IN_SIG)
 
-
-write_readme(OUT_DOC, "12q24 hub (CUX2, ACAD10, ALDH2, NAA25, HECTD4) PheWAS panel - README", list(
-  "Content"        = sprintf("Bar panel: N_traits per gene read from Table S5 (all-SNP unit, study-wide): %s. Dot panel: %d traits study-wide significant in >=1 of the 4 genes.",
-                             paste(sprintf("%s=%d", GENES, gene_n), collapse = ", "), nrow(d)),
-  "Bar panel source" = sprintf("%s (built Table S5, all-SNP unit). Per gene: %s. Verified identical to a direct recount from %s before plotting.",
-                             IN_ST5,
-                             paste(sprintf("%s rank %d of %d loci, %d traits / %d associations / %d SNPs / %d categories",
-                                           GENES, gene_row$Rank, nrow(st5), gene_row$N_traits,
-                                           gene_row$N_associations, gene_row$N_SNPs,
-                                           gene_row$N_categories), collapse = "; "),
-                             IN_SIG),
-  "Genes"          = "CUX2, ACAD10, ALDH2, NAA25, HECTD4 -- the 12q24 LD block the Results text discusses as one unit (HECTD4/CUX2/RPH3A pleiotropy, then rs671/ALDH2 'within this block').",
-  "Source"         = sprintf("%s (all P<5e-8 trait-SNP associations, not clumped lead SNPs), filtered to P < %s: %d rows, %d unique SNPs, chr%s:%s-%s across the four genes.",
-                             IN_SIG, signif(P_STUDYWIDE, 4), nrow(sub), length(unique(sub$ID)),
-                             unique(sub$CHROM), format(min(sub$POS), scientific = FALSE),
-                             format(max(sub$POS), scientific = FALSE)),
-  "Cell value"     = "Strongest (max -log10 P) study-wide significant association for that trait at that gene. NA / gray = no study-wide significant SNP nearest that gene for that trait.",
-  "Threshold"      = sprintf("Study-wide P < 5e-8/%d = %s (-log10 P = %.3f), applied as an INPUT FILTER. Significance uses -log10(P) recomputed from BETA/SE in log space; the file's own Study-wide flag column is cross-checked, not trusted.",
-                             N_EFF_TRAITS, signif(P_STUDYWIDE, 4), SWS),
-  "Script"         = "scripts/hub_12q24_phewas.R",
-  "Generated"      = format(Sys.Date())
-))
-message("wrote ", OUT_DOC)
 
 # ---- plot ---------------------------------------------------------------
 CATEGORY_COLOR <- c(
