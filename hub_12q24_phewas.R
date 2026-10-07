@@ -13,7 +13,6 @@
 #                               P < 6.17e-10. Drives the dot panel.
 #         data/ST5_studywide_allSNP.csv   ST5 from all-SNP unit, study-wide. 
 # Output: out/hub_12q24_phewas.csv
-#         out/hub_12q24_phewas_readme.tsv
 #         out/hub_12q24_phewas.png
 #
 # Run   : Rscript scripts/hub_12q24_phewas.R
@@ -34,7 +33,7 @@ IN_SIG      <- "../data/all_sig.txt.gz"                 # dot panel
 IN_ST5      <- "../data/ST5_studywide_allSNP.csv"       # bar panel (all-SNP unit)
 
 OUT_CSV <- "../out/hub_12q24_phewas.csv"
-OUT_DOC <- "../out/hub_12q24_phewas_readme.tsv"
+
 OUT_PNG <- "../out/hub_12q24_phewas.png"
 
 neglog10p <- function(beta, se) {
