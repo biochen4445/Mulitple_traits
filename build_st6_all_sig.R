@@ -8,18 +8,12 @@
 # threshold, same hygiene; the unit of analysis is the VARIANT instead of the
 # locus.
 #
-# History
-#   This build uses every study-wide significant variant (282,674), so a variant's trait
-#   count is what that variant is actually associated with. 
-#   Top SNP-level hub: rs1260326 (GCKR) 25 traits here,
-#   versus rs77768175 (HECTD4) 21 in the lead-SNP build.
 #
 # Input : ../data/all_sig.txt.gz   ALL trait-SNP associations at P<5e-8
 #                               (tab-delimited, gzipped)
 #   
 # Output: ../out/ST6_studywide_allSNP.csv
 #         ../out/ST6_studywide_allSNP_2traits.csv
-#         ../out/ST6_studywide_allSNP_readme.tsv
 #         
 # Run   : Rscript Script/build_st6_all_sig.R
 #
@@ -41,7 +35,6 @@ IN_SIG      <- "../data/all_sig.txt.gz"
 OUT_DIR <- "../out"
 OUT_CSV <- file.path(OUT_DIR, "ST6_studywide_allSNP.csv")
 OUT_CSV2 <- file.path(OUT_DIR, "ST6_studywide_allSNP_2traits.csv")
-OUT_DOC <- file.path(OUT_DIR, "ST6_studywide_allSNP_readme.tsv")
 
 # Analysis runs and the workbook disagree on two trait labels; the workbook
 # wins (same map as build_study_wide_tables.R / build_st5_all_sig.R).
@@ -203,26 +196,3 @@ message("wrote ", OUT_CSV, " (", round(file.size(OUT_CSV) / 1e6, 1), " MB)")
 ST6_2Ttraits <- st6[st6$N_traits >= 2, ]
 write.csv(ST6_2Ttraits, OUT_CSV2, row.names = FALSE, na = "")
 
-# ---- README --------------------------------------------------------------
-top10 <- head(st6, 10)
-write_readme(OUT_DOC, "Supplementary Table S6 (all-SNP unit, study-wide) - README", list(
-  "Content"      = sprintf("One row per variant with >=1 study-wide significant association: %d variants, %d pleiotropic (>=2 traits), max %d traits. Top: %s.",
-                           nrow(st6), sum(st6$Pleiotropic == "Yes"), max(st6$N_traits),
-                           paste(sprintf("%s (%s, %d traits)", top10$SNP[1:5],
-                                         top10$Nearest_gene[1:5], top10$N_traits[1:5]),
-                                 collapse = ", ")),
-  "Source"       = sprintf("%s: 696,150 records at P<5e-8, filtered to P < %s -> %d SNP-trait associations, %d unique variants, %d traits.",
-                           IN_SIG, signif(P_STUDYWIDE, 4), nrow(sig),
-                           length(unique(sig$ID)), length(unique(sig$Trait))),
-  "UNIT -- READ THIS" = "This table covers EVERY study-wide significant variant. The first column is SNP.",
-  "LD CAVEAT -- READ THIS TOO" = "Rows are NOT independent signals: neighbouring variants in an LD block carry essentially the same association, so a strong locus contributes hundreds of near-identical rows. This table answers 'what is THIS variant associated with', which is the question rs671/ALDH2-style statements in the Results text ask.",
-  "Method"       = "Grouped by variant ID; ranked N_traits desc, Top_neglog10P desc, SNP id asc. Significance and Top_neglog10P computed from BETA/SE in log space, so associations below double-precision range rank correctly; the file's own study-wide flag column is cross-checked, not trusted. Multi-allelic sites collapsed to the strongest allele per SNP-trait pair. Trait labels canonicalised (Anti_nDNA -> Anti_dsDNA, Optometry_SE -> SE).",
-  "Allele columns" = sprintf("CHR, POS, Ref and Nearest_gene are constant within a variant (asserted). A1 is not: %d variant(s) carry more than one alternate allele across traits. A1FREQ is not either: %d variants have a trait-dependent frequency, because the analysed cohort differs by trait. A1 and A1FREQ are therefore taken from the variant's STRONGEST association, not from an arbitrary row.",
-                           n_multi_a1, n_var_freq),
-  "Columns"      = "Rank; SNP; CHR; POS; Ref; A1; A1FREQ; Nearest_gene; N_traits; N_categories; Categories; Traits; Top_trait/Top_category/Top_neglog10P/Top_P/Top_BETA/Top_SE (the variant's strongest association; Top_P blank where P underflowed to 0); Pleiotropic.",
-  "Threshold"    = sprintf("Study-wide P < 5e-8/%d = %s (-log10 P = %.3f), applied as an input filter.",
-                           N_EFF_TRAITS, signif(P_STUDYWIDE, 4), SWS),
-  "Script"       = "Script/build_st6_all_sig.R",
-  "Generated"    = format(Sys.Date())
-))
-message("wrote ", OUT_DOC)
