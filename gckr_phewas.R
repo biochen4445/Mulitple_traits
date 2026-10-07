@@ -4,12 +4,6 @@
 #   panel of "PheWAS of the two most pleiotropic loci"), at the study-wide
 #   threshold (P < 5e-8/81 = 6.17e-10) only.
 #
-# REVISION HISTORY
-#     The input is now FILTERED TO STUDY-WIDE SIGNIFICANT SNPs
-#     (P < 6.17e-10) before anything downstream. Genome-wide-only rows never
-#     enter the analysis, so every trait, SNP and number in the outputs is
-#     study-wide by construction and the old StudyWide flag column is gone.
-#
 # For each trait with >=1 study-wide significant GCKR SNP, takes the strongest
 # (max -log10 P) association. Y-axis trait labels and dots are both colored by
 # clinical category, with a category legend.
@@ -18,7 +12,6 @@
 #                               (tab-delimited, gzipped)
 #                               -- filtered here to P < 6.17e-10.
 # Output: ../out/GCKR_phewas.csv          per-trait table, study-wide traits only
-#         ../out/GCKR_phewas_readme.tsv
 #         ../out/GCKR_phewas.png          the plot
 #
 # Run   : Rscript scripts/gckr_phewas.R
@@ -35,7 +28,6 @@ SWS          <- -log10(P_STUDYWIDE)
 
 IN_SIG  <- "../data/all_sig.txt.gz"
 OUT_CSV <- "../out/GCKR_phewas.csv"
-OUT_DOC <- "../out/GCKR_phewas_readme.tsv"
 OUT_PNG <- "../out/GCKR_phewas.png"
 
 LOCUS_GENE <- "GCKR"
@@ -129,22 +121,6 @@ write.csv(per_trait[, c("Trait", "Category", "ID", "CHROM", "POS",
           OUT_CSV, row.names = FALSE, na = "")
 message("wrote ", OUT_CSV)
 
-write_readme(OUT_DOC, "GCKR PheWAS panel - README", list(
-  "Content"    = sprintf("One row per trait with >=1 STUDY-WIDE significant GCKR (2p23) SNP (%d traits, %d categories); the strongest association per trait. Every row plotted -- there is no genome-wide-only tier.",
-                         nrow(per_trait), length(unique(per_trait$Category))),
-  "Source"     = sprintf("%s (all P<5e-8 trait-SNP associations, not clumped lead SNPs), filtered to P < %s, rows with NearestGene == %s: %d rows, %d unique SNPs, chr%s:%s-%s.",
-                         IN_SIG, signif(P_STUDYWIDE, 4), LOCUS_GENE, nrow(gckr),
-                         length(unique(gckr$ID)), unique(gckr$CHROM),
-                         format(min(gckr$POS), scientific = FALSE),
-                         format(max(gckr$POS), scientific = FALSE)),
-  "Method"     = "Input filtered to study-wide significance FIRST, then grouped by Trait; strongest (max -log10 P) association kept per trait. N_SNPs = study-wide significant SNPs at the locus for that trait. Significance and ranking use -log10(P) recomputed from BETA/SE in log space, so associations below double-precision range (P stored as 0) are handled correctly; the file's own Study-wide flag column is cross-checked, not trusted.",
-  "Threshold"  = sprintf("Study-wide P < 5e-8/%d = %s (-log10 P = %.3f). Applied as an INPUT FILTER, so it is not drawn as a cutoff line -- the axis simply starts above it.",
-                         N_EFF_TRAITS, signif(P_STUDYWIDE, 4), SWS),
-  "Category order" = paste(CATEGORY_ORDER, collapse = " > "),
-  "Script"     = "scripts/gckr_phewas.R",
-  "Generated"  = format(Sys.Date())
-))
-message("wrote ", OUT_DOC)
 
 # ---- plot -------------------------------------------------------------
 # Category palette -- visually close to the published two-panel figure
