@@ -1,46 +1,6 @@
 #!/usr/bin/env Rscript
 # =====================================================================
 # echo_partition_rg.R -- "Echocardiographic loci partition by trait class"
-#   (panel a) + "Genetic correlation with systemic markers" (panel b),
-#   at the study-wide threshold only (P < 5e-8/81 = 6.17e-10).
-#   Panel a is threshold-dependent (locus discovery); panel b is not --
-#   genetic correlations (LDSC, ST7) do not depend on the GWAS significance
-#   threshold, so panel b is unchanged by this revision.
-#
-# REVISION 2026-09-02: panel a's input from the full association list data/all_sig.txt.gz,
-#   FILTERED TO STUDY-WIDE SIGNIFICANT SNPs before anything downstream. Every
-#   significant SNP now contributes, so a locus appears whenever any study-wide SNP nearest that gene hits an echo
-#   trait. Panel a grows to 33. Panel b is untouched.
-#
-#   *** LD CAVEAT ***
-#   Rows are nearest-gene bins, not independent signals. Neighbouring genes in
-#   one LD block each inherit the block's traits, so a single signal can occupy
-#   several rows -- TTN and TTN-AS1 here are the same 2q31 signal under two
-#   symbols. Read panel a as "which genes' regions carry study-wide echo
-#   signal". 
-#
-# Panel a: rows = nearest-gene loci with >=1 study-wide significant SNP among
-#   the 11 echocardiographic traits (LVM, LVMI, IVSd, IVSs, PWd, PWs, RWT,
-#   LVDd, LVDs, EF, FS); dark cell = study-wide significant for that trait.
-#   Columns continue into 6 systemic-trait categories (Adiposity, Blood
-#   pressure, Metabolic, Liver, Kidney, Blood -- mapped 1:1 from the atlas's
-#   Anthropometric / Vital sign / Metabolism / Liver / Kidney / Hematology);
-#   shade = number of systemic traits in that category also study-wide
-#   significant at the same locus (light = 1, dark = >=2).
-#   Rows are grouped by primary phenotype class (more cardiac-trait hits in
-#   the mass/wall-thickness block vs the dimension/function block; ties go to
-#   mass). At study-wide, MC4R remains the ONLY mass/wall-thickness-primary
-#   locus. Loci with hits in both blocks stay in the dimension/function block
-#   but keep their mass-block cells colored, visibly bridging the two -- the
-#   MIR4662B finding already flagged as a Word comment on the main text, now
-#   joined by LINC00964.
-#
-# Panel b: rows = the 7 mass/wall-thickness traits (LVM, LVMI, IVSd, IVSs,
-#   PWd, PWs, RWT) + 2 function traits (EF, FS) -- LVDd/LVDs excluded, same
-#   trait set as the reference image. Columns = 10 systemic markers (ALT,
-#   GGT, AST, hsCRP, ESR, uACR, uPCR, SCr, SBP, BMI). Cell = genetic
-#   correlation (rg) from ST7, diverging blue-white-red; "*" = FDR < 0.05.
-#
 # Input : ../data/all_sig.txt.gz  ALL trait-SNP associations at P<5e-8
 #                              (tab-delimited, gzipped) -- filtered here to
 #                              P < 6.17e-10. Drives panel a.
@@ -196,31 +156,7 @@ describe_bridge <- function(g) sprintf("%s (mass-block: %s; dimension/function: 
   paste(CARDIAC[cardiac_mat[g, ] & CARDIAC %in% MASS_TRAITS],  collapse = ","),
   paste(CARDIAC[cardiac_mat[g, ] & CARDIAC %in% DIMFN_TRAITS], collapse = ","))
 
-write_readme(OUT_DOC, "Echocardiographic loci partition (study-wide, all-SNP unit) - README", list(
-  "Content"     = sprintf("%d nearest-gene loci reach study-wide significance (P<5e-8/81) for >=1 of the 11 echo traits. %d are mass/wall-thickness-primary, %d are dimension/function-primary.",
-                          length(loci), sum(grp == "Mass / wall-thickness loci"),
-                          sum(grp == "Dimension / function loci")),
-  "UNIT -- READ THIS" = sprintf("Built from EVERY study-wide significant SNP (%s), not the clumped lead SNPs. The lead-SNP version of this panel had 15 loci; this one has %d. Rows are nearest-gene bins, NOT independent signals -- neighbouring genes in one LD block each inherit the block's traits (TTN and TTN-AS1 here are the same 2q31 signal under two symbols). Do not quote the row count as a number of independent loci.",
-                          IN_SIG, length(loci)),
-  "Mass/wall-thickness block" = sprintf("%s -- still the only mass-primary locus at study-wide, unchanged from the lead-SNP build. At the conventional genome-wide threshold the block had 8 loci (FTO, ACAD10, FGF5, ALDH2, MC4R, PTPN11, ZEB1, LINC00880).",
-                          paste(mass_only, collapse = ", ")),
-  "Bridging loci" = if (length(bridging))
-                      sprintf("%d locus/loci hit both blocks: %s. Placed in the dimension/function block (more hits there) but keeping their mass-block cells colored. MIR4662B is the cross-class finding already flagged as a Word comment on the main text; LINC00964 is NEW at the all-SNP unit and makes the same point.",
-                              length(bridging), paste(sapply(bridging, describe_bridge), collapse = "; "))
-                    else "none",
-  "Cardiac-only loci" = sprintf("%d of %d loci have no study-wide systemic association in the 6 mapped categories: %s.",
-                          length(cardiac_only), length(loci), paste(cardiac_only, collapse = ", ")),
-  "Empty columns" = sprintf("Echo traits with no study-wide locus: %s. Of these, %s have no genome-wide significant association at all in the source file, so their columns are structurally empty rather than threshold-emptied. Columns are kept to show the absence.",
-                          paste(setdiff(CARDIAC, colnames(cardiac_mat)[colSums(cardiac_mat) > 0]), collapse = ", "),
-                          if (length(absent)) paste(absent, collapse = ", ") else "none"),
-  "Systemic columns" = "Adiposity=Anthropometric, Blood pressure=Vital sign, Metabolic=Metabolism, Liver=Liver, Kidney=Kidney, Blood=Hematology (atlas Category values, 1:1 renamed to match the reference figure's labels).",
-  "Cell shade (systemic)" = "0 traits = blank, 1 trait = light orange, >=2 traits = dark orange, all at study-wide significance for that locus.",
-  "Method"      = "Input filtered to study-wide significance FIRST, on -log10(P) recomputed from BETA/SE in log space; the file's own study-wide flag column is cross-checked, not trusted. Multi-allelic sites collapsed to one record per SNP-trait pair, matching Table S5/S6.",
-  "Panel b"     = sprintf("Unchanged by this revision: LDSC genetic correlations (%s) do not depend on the GWAS significance threshold.", IN_ST7),
-  "Script"      = "scripts/echo_partition_rg.R",
-  "Generated"   = format(Sys.Date())
-))
-message("wrote ", OUT_DOC)
+
 
 # ==== Panel b: echo trait x systemic marker genetic correlation ============
 st7 <- normalise_st7(read.csv(IN_ST7, stringsAsFactors = FALSE, check.names = FALSE))
