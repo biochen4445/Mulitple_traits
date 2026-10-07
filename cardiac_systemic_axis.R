@@ -5,33 +5,8 @@
 #
 ##
 # Panel a -- correlation level (LDSC, ST7; NOT threshold-dependent).
-#   For each of the 12 echocardiographic traits, the mean genetic correlation
-#   with the non-cardiac traits it significantly correlates with (FDR < 0.05),
-#   out of 80 non-cardiac traits tested. Diverging scale: the sign flip between
-#   structural and functional traits IS the axis.
-#   KEY RESULT: the flip falls between structure and function, NOT between
-#   "mass/wall thickness" and "dimension/function" as the Discussion states.
-#   Chamber dimensions (LVDd +0.19, 24 partners; LVDs +0.20, 22) sit firmly on
-#   the structural side -- more systemically coupled than PWs (+0.37 but only
-#   18) or RWT (12) -- while only EF, FS and E/A ratio invert.
 #
 # Panel b -- locus level (study-wide significant SNPs; threshold-dependent).
-#   Non-cardiac traits per study-wide cardiac locus, split by whether the locus
-#   serves any functional trait -- the same axis, independently derived.
-#
-# REVISION 2026-09-02: panel b's input from the full association list data/all_sig.txt.gz, FILTERED TO
-#   STUDY-WIDE SIGNIFICANT SNPs before anything downstream. Every significant SNP
-#   now contributes, so a locus appears whenever any study-wide SNP nearest that
-#   gene hits a cardiac trait, and its non-cardiac count is over all such SNPs.
-#   Panel a is untouched: LDSC genetic correlations do not depend on the GWAS
-#   significance threshold.
-#
-#   *** LD CAVEAT ***
-#   Panel b's rows are nearest-gene bins, not independent signals. Neighbouring
-#   genes in one LD block each inherit the block's traits -- TTN and TTN-AS1 here
-#   are the same 2q31 signal under two symbols. The structure-vs-function CONTRAST
-#   is what the panel is for; do not quote the row count as a number of
-#   independent loci (that needs the clumped lead-SNP table).
 #
 # Input : ../data/ST7.csv        pairwise genetic correlations (workbook sheet ST7)
 #         ../data/all_sig.txt.gz all trait-SNP associations at P<5e-8 (gzipped,
